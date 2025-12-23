@@ -186,7 +186,7 @@ export default function Index() {
       <header className="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b-4 border-primary">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Logo variant={getLogoVariant()} size={80} />
+            <Logo variant={getLogoVariant()} size={120} />
             <div>
               <h1 className="text-3xl font-bold text-primary">BrainUP</h1>
               <p className="text-sm text-muted-foreground">Прокачай свой мозг! 🚀</p>

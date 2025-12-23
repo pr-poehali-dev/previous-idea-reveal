@@ -4,14 +4,14 @@ interface LogoProps {
 }
 
 const logoImages = {
-  default: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/b1d69b59-edb2-464d-8aa9-93808394a54b.jpg',
-  memory: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/ae8a9ff5-9213-474b-b6d5-434d506e547c.jpg',
-  logic: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/3a1750f7-f160-4ab4-b3e4-11938209780f.jpg',
-  attention: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/08af9b5d-0e28-4bb4-9345-d8f98d4bcef5.jpg',
-  creativity: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/7e108214-e942-48d6-b6a8-011312dba5ed.jpg',
+  default: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/cbb13031-5606-4299-9bc4-442bdb7dbc5d.jpg',
+  memory: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/52c0bcc1-22aa-42fe-a89f-c8b5f948b094.jpg',
+  logic: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/0d0dc091-b7f8-4e72-9297-06fd85ca2722.jpg',
+  attention: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/7e17544e-f958-45ee-8313-1613b7d6bea8.jpg',
+  creativity: 'https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/208e4007-5093-4db2-b540-a9a22add58cf.jpg',
 };
 
-export default function Logo({ variant = 'default', size = 60 }: LogoProps) {
+export default function Logo({ variant = 'default', size = 120 }: LogoProps) {
   return (
     <img 
       src={logoImages[variant]} 
