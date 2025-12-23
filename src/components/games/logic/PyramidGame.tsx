@@ -65,14 +65,14 @@ export default function PyramidGame({ level, onBack, onComplete }: PyramidGamePr
     setSelectedCell({ row, col });
   };
 
-  const handleNumberClick = (num: number) => {
-    if (!selectedCell) return;
+  const handleNumberInput = (row: number, col: number, num: number) => {
+    if (pyramid[row][col] !== null) return;
     
-    const newPyramid = pyramid.map(row => [...row]);
-    newPyramid[selectedCell.row][selectedCell.col] = num;
+    const newPyramid = pyramid.map(r => [...r]);
+    newPyramid[row][col] = num;
     setPyramid(newPyramid);
     
-    if (num !== solution[selectedCell.row][selectedCell.col]) {
+    if (num !== solution[row][col]) {
       setMistakes(mistakes + 1);
     }
     
@@ -80,7 +80,36 @@ export default function PyramidGame({ level, onBack, onComplete }: PyramidGamePr
       const score = Math.max(50, 100 - mistakes * 10);
       setTimeout(() => onComplete(score), 500);
     }
+    
+    setSelectedCell(null);
   };
+
+  const handleNumberClick = (num: number) => {
+    if (!selectedCell) return;
+    handleNumberInput(selectedCell.row, selectedCell.col, num);
+  };
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      const num = parseInt(e.key);
+      if (!isNaN(num) && num >= 0 && num <= 9) {
+        if (selectedCell) {
+          handleNumberInput(selectedCell.row, selectedCell.col, num);
+        }
+      }
+      
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        if (selectedCell && pyramid[selectedCell.row]?.[selectedCell.col] === null) {
+          const newPyramid = pyramid.map(r => [...r]);
+          newPyramid[selectedCell.row][selectedCell.col] = null;
+          setPyramid(newPyramid);
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [selectedCell, pyramid, solution]);
 
   const checkWin = (currentPyramid: (number | null)[][]) => {
     for (let row = 0; row < rows; row++) {
@@ -153,6 +182,7 @@ export default function PyramidGame({ level, onBack, onComplete }: PyramidGamePr
             <li>Например: если снизу 2 и 3, то сверху будет 2+3=5</li>
             <li>Самый нижний ряд уже заполнен - это основание пирамиды</li>
             <li>Заполни пустые клетки "?" складывая числа снизу</li>
+            <li>Можно нажать клетку и выбрать число, или просто вписать цифру с клавиатуры</li>
             <li>Синие клетки - подсказки, их менять нельзя</li>
           </ul>
           <div className="mt-4 p-3 bg-white rounded border-2 border-blue-300">
