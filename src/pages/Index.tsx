@@ -391,7 +391,8 @@ export default function Index() {
                     </Button>
                   </CardContent>
                 </Card>
-              );})}
+              );
+            })}
             </div>
           </div>
         )}
