@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import GameSimpleMemory from '@/components/GameSimpleMemory';
-import GameSimpleSudoku from '@/components/GameSimpleSudoku';
-import GameSimpleSchulte from '@/components/GameSimpleSchulte';
-import GameSimpleAssociations from '@/components/GameSimpleAssociations';
-import GameSimpleDraw from '@/components/GameSimpleDraw';
 import Logo from '@/components/Logo';
 import PageTransition from '@/components/PageTransition';
 import ProfileView from '@/components/game-app/ProfileView';
 import CategoryGamesView from '@/components/game-app/CategoryGamesView';
 import CategoriesView from '@/components/game-app/CategoriesView';
+import GameComponent from '@/components/games';
 import { categories, avatars, Game } from '@/components/game-app/types';
 
 export default function Index() {
@@ -88,11 +84,11 @@ export default function Index() {
       <main className="container mx-auto px-4 py-8">
         {selectedGame ? (
           <PageTransition pageKey={`game-${selectedGame.id}`}>
-            {selectedGame.id === 11 && <GameSimpleMemory onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
-            {selectedGame.id === 1 && <GameSimpleSudoku onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
-            {selectedGame.id === 31 && <GameSimpleSchulte onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
-            {selectedGame.id === 21 && <GameSimpleAssociations onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
-            {selectedGame.id === 41 && <GameSimpleDraw onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            <GameComponent 
+              game={selectedGame}
+              onComplete={(score) => completeGame(selectedGame.id, score)} 
+              onBack={() => setSelectedGame(null)} 
+            />
           </PageTransition>
         ) : showProfile ? (
           <PageTransition pageKey="profile">
