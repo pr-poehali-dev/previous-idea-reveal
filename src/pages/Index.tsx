@@ -5,11 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
-import GameMemoryMatch from '@/components/GameMemoryMatch';
-import GameSudoku from '@/components/GameSudoku';
-import GameSchulteTable from '@/components/GameSchulteTable';
-import GameAssociations from '@/components/GameAssociations';
-import GameDrawTwoHands from '@/components/GameDrawTwoHands';
+import GameSimpleMemory from '@/components/GameSimpleMemory';
+import GameSimpleSudoku from '@/components/GameSimpleSudoku';
+import GameSimpleSchulte from '@/components/GameSimpleSchulte';
+import GameSimpleAssociations from '@/components/GameSimpleAssociations';
+import GameSimpleDraw from '@/components/GameSimpleDraw';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -126,12 +126,12 @@ const categories: Category[] = [
 ];
 
 const avatars = [
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Princess',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Lucky',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Angel',
-  'https://api.dicebear.com/7.x/adventurer/svg?seed=Buddy',
+  'https://api.dicebear.com/7.x/anime/svg?seed=Sakura',
+  'https://api.dicebear.com/7.x/anime/svg?seed=Kaito',
+  'https://api.dicebear.com/7.x/anime/svg?seed=Yuki',
+  'https://api.dicebear.com/7.x/anime/svg?seed=Haru',
+  'https://api.dicebear.com/7.x/anime/svg?seed=Rin',
+  'https://api.dicebear.com/7.x/anime/svg?seed=Sora',
 ];
 
 export default function Index() {
@@ -205,11 +205,11 @@ export default function Index() {
       <main className="container mx-auto px-4 py-8">
         {selectedGame ? (
           <div>
-            {selectedGame.id === 11 && <GameMemoryMatch onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
-            {selectedGame.id === 1 && <GameSudoku onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
-            {selectedGame.id === 31 && <GameSchulteTable onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
-            {selectedGame.id === 21 && <GameAssociations onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
-            {selectedGame.id === 41 && <GameDrawTwoHands onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            {selectedGame.id === 11 && <GameSimpleMemory onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            {selectedGame.id === 1 && <GameSimpleSudoku onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            {selectedGame.id === 31 && <GameSimpleSchulte onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            {selectedGame.id === 21 && <GameSimpleAssociations onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            {selectedGame.id === 41 && <GameSimpleDraw onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
           </div>
         ) : showProfile ? (
           <Card className="max-w-2xl mx-auto shadow-xl border-4 border-primary">
