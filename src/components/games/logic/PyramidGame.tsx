@@ -94,7 +94,7 @@ export default function PyramidGame({ level, onBack, onComplete }: PyramidGamePr
   return (
     <GameWrapper
       title="Числовые пирамиды"
-      description="Каждое число равно сумме двух чисел над ним!"
+      description="Каждое число равно сумме двух чисел ПОД ним!"
       level={level}
       onBack={onBack}
       onComplete={onComplete}
