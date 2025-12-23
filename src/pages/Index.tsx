@@ -10,6 +10,7 @@ import GameSimpleSudoku from '@/components/GameSimpleSudoku';
 import GameSimpleSchulte from '@/components/GameSimpleSchulte';
 import GameSimpleAssociations from '@/components/GameSimpleAssociations';
 import GameSimpleDraw from '@/components/GameSimpleDraw';
+import Logo from '@/components/Logo';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -137,6 +138,16 @@ const avatars = [
 export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  
+  const getLogoVariant = (): 'default' | 'memory' | 'logic' | 'attention' | 'creativity' => {
+    if (!selectedGame) return 'default';
+    const categoryId = categories.find(c => c.games.some(g => g.id === selectedGame.id))?.id;
+    if (categoryId === 'memory') return 'memory';
+    if (categoryId === 'logic') return 'logic';
+    if (categoryId === 'reading') return 'attention';
+    if (categoryId === 'creativity') return 'creativity';
+    return 'default';
+  };
   const [selectedAvatar, setSelectedAvatar] = useState<string>(avatars[0]);
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [playerLevel] = useState<number>(5);
@@ -175,11 +186,7 @@ export default function Index() {
       <header className="bg-white/90 backdrop-blur-sm shadow-sm sticky top-0 z-50 border-b-4 border-primary">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img 
-              src="https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/ba3a15b7-96f2-46ce-8e98-f1ed8a1649d0.jpg" 
-              alt="BrainUP" 
-              className="w-24 h-24 animate-bounce-gentle"
-            />
+            <Logo variant={getLogoVariant()} size={80} />
             <div>
               <h1 className="text-3xl font-bold text-primary">BrainUP</h1>
               <p className="text-sm text-muted-foreground">Прокачай свой мозг! 🚀</p>
