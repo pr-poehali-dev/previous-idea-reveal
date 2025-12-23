@@ -9,6 +9,15 @@ export interface Game {
   unlocked: boolean;
   completed: boolean;
   score?: number;
+  level: number;
+}
+
+export interface GameTemplate {
+  name: string;
+  baseDescription: string;
+  icon: string;
+  getLevelDescription: (level: number) => string;
+  getDifficulty: (level: number) => Difficulty;
 }
 
 export interface Category {
@@ -17,6 +26,393 @@ export interface Category {
   icon: string;
   color: string;
   games: Game[];
+  gameTemplates: GameTemplate[];
+}
+
+const logicTemplates: GameTemplate[] = [
+  {
+    name: 'Судоку',
+    baseDescription: 'Заполни числа',
+    icon: 'Grid3x3',
+    getLevelDescription: (level) => `Судоку ${3 + level}x${3 + level}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Шахматные задачи',
+    baseDescription: 'Найди мат',
+    icon: 'Crown',
+    getLevelDescription: (level) => `Мат в ${level + 1} ход${level + 1 > 1 ? 'а' : ''}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Логические цепочки',
+    baseDescription: 'Продолжи последовательность',
+    icon: 'Link',
+    getLevelDescription: (level) => `${level + 3} элемента`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Ребусы',
+    baseDescription: 'Разгадай зашифрованное',
+    icon: 'MessageSquare',
+    getLevelDescription: (level) => `Сложность ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Числовые пирамиды',
+    baseDescription: 'Сложи числа правильно',
+    icon: 'Triangle',
+    getLevelDescription: (level) => `${level + 3} уровней`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Танграм',
+    baseDescription: 'Собери фигуру из частей',
+    icon: 'Box',
+    getLevelDescription: (level) => `${level + 4} детал${level + 4 > 4 ? 'ей' : 'и'}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Лабиринты',
+    baseDescription: 'Найди выход',
+    icon: 'Puzzle',
+    getLevelDescription: (level) => `Размер ${(level + 3) * 2}x${(level + 3) * 2}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Логические загадки',
+    baseDescription: 'Реши задачу',
+    icon: 'Lightbulb',
+    getLevelDescription: (level) => `Уровень ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Крестики-нолики',
+    baseDescription: 'Собери в ряд',
+    icon: 'Grid2x2',
+    getLevelDescription: (level) => `${level + 3}x${level + 3}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Найди отличия',
+    baseDescription: 'Сравни картинки',
+    icon: 'Eye',
+    getLevelDescription: (level) => `${level + 3} отличия`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  }
+];
+
+const memoryTemplates: GameTemplate[] = [
+  {
+    name: 'Найди пару',
+    baseDescription: 'Переверни карточки',
+    icon: 'Copy',
+    getLevelDescription: (level) => `${(level + 2) * 2} пар`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Запомни порядок',
+    baseDescription: 'Повтори последовательность',
+    icon: 'ListOrdered',
+    getLevelDescription: (level) => `${level + 3} элемента`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Что изменилось?',
+    baseDescription: 'Найди изменения',
+    icon: 'Search',
+    getLevelDescription: (level) => `${level + 2} изменения`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Числовой ряд',
+    baseDescription: 'Запомни числа',
+    icon: 'Hash',
+    getLevelDescription: (level) => `${level + 4} цифры`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Мемо-слова',
+    baseDescription: 'Запомни список',
+    icon: 'Type',
+    getLevelDescription: (level) => `${level + 5} слов`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Картинки-память',
+    baseDescription: 'Вспомни детали',
+    icon: 'Image',
+    getLevelDescription: (level) => `${level + 4} детали`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Цветовая память',
+    baseDescription: 'Запомни цвета',
+    icon: 'Palette',
+    getLevelDescription: (level) => `${level + 4} цвета`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Звуковая память',
+    baseDescription: 'Повтори звуки',
+    icon: 'Music',
+    getLevelDescription: (level) => `${level + 3} звука`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Мемо-фрукты',
+    baseDescription: 'Запомни положение',
+    icon: 'Apple',
+    getLevelDescription: (level) => `${level + 5} фруктов`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Кто пропал?',
+    baseDescription: 'Найди пропавший предмет',
+    icon: 'HelpCircle',
+    getLevelDescription: (level) => `Из ${level + 6} предметов`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  }
+];
+
+const thinkingTemplates: GameTemplate[] = [
+  {
+    name: 'Ассоциации',
+    baseDescription: 'Найди связь',
+    icon: 'Shuffle',
+    getLevelDescription: (level) => `Уровень ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Категории',
+    baseDescription: 'Раздели по группам',
+    icon: 'FolderTree',
+    getLevelDescription: (level) => `${level + 3} группы`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Причина-следствие',
+    baseDescription: 'Определи порядок',
+    icon: 'ArrowRight',
+    getLevelDescription: (level) => `${level + 3} события`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Сравнение',
+    baseDescription: 'Найди общее и различное',
+    icon: 'Scale',
+    getLevelDescription: (level) => `${level + 3} объекта`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Аналогии',
+    baseDescription: 'Подбери пару',
+    icon: 'GitCompare',
+    getLevelDescription: (level) => `Сложность ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Что лишнее?',
+    baseDescription: 'Найди лишний предмет',
+    icon: 'X',
+    getLevelDescription: (level) => `Из ${level + 5} предметов`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Собери целое',
+    baseDescription: 'Составь объект',
+    icon: 'Puzzle',
+    getLevelDescription: (level) => `${level + 4} частей`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Противоположности',
+    baseDescription: 'Найди антонимы',
+    icon: 'ArrowLeftRight',
+    getLevelDescription: (level) => `${level + 4} пар`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Креативное мышление',
+    baseDescription: 'Придумай применение',
+    icon: 'Wand2',
+    getLevelDescription: (level) => `Задача ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Решение проблем',
+    baseDescription: 'Найди выход',
+    icon: 'Target',
+    getLevelDescription: (level) => `Ситуация ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  }
+];
+
+const readingTemplates: GameTemplate[] = [
+  {
+    name: 'Таблицы Шульте',
+    baseDescription: 'Найди числа по порядку',
+    icon: 'Table',
+    getLevelDescription: (level) => `${(level + 3)}x${(level + 3)}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Расширение поля зрения',
+    baseDescription: 'Увидь текст целиком',
+    icon: 'Maximize2',
+    getLevelDescription: (level) => `${level + 3} слова`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Чтение без возвратов',
+    baseDescription: 'Читай вперёд',
+    icon: 'FastForward',
+    getLevelDescription: (level) => `${(level + 3) * 10} слов`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Поиск слов',
+    baseDescription: 'Найди слово в тексте',
+    icon: 'SearchCheck',
+    getLevelDescription: (level) => `${level + 2} слова`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Скорость чтения',
+    baseDescription: 'Читай быстро',
+    icon: 'Gauge',
+    getLevelDescription: (level) => `${(level + 2) * 50} слов/мин`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Анаграммы',
+    baseDescription: 'Составь слово',
+    icon: 'ALargeSmall',
+    getLevelDescription: (level) => `${level + 4} буквы`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Слоговое чтение',
+    baseDescription: 'Читай по слогам',
+    icon: 'TextCursor',
+    getLevelDescription: (level) => `Скорость ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Вращающийся текст',
+    baseDescription: 'Читай под углом',
+    icon: 'RotateCw',
+    getLevelDescription: (level) => `Угол ${(level + 1) * 15}°`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Пропущенные буквы',
+    baseDescription: 'Угадай пропущенное',
+    icon: 'FileQuestion',
+    getLevelDescription: (level) => `${level + 2} пропуска`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Лабиринт слов',
+    baseDescription: 'Следуй за текстом',
+    icon: 'Route',
+    getLevelDescription: (level) => `${level + 5} поворотов`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  }
+];
+
+const hemispheresTemplates: GameTemplate[] = [
+  {
+    name: 'Рисуй двумя руками',
+    baseDescription: 'Одновременное рисование',
+    icon: 'PenTool',
+    getLevelDescription: (level) => `Фигура ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Правая-левая',
+    baseDescription: 'Различай стороны',
+    icon: 'Move',
+    getLevelDescription: (level) => `Скорость ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Цвет-слово',
+    baseDescription: 'Называй цвет',
+    icon: 'Paintbrush',
+    getLevelDescription: (level) => `${level + 5} слов`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Перекрёстные движения',
+    baseDescription: 'Координация',
+    icon: 'Activity',
+    getLevelDescription: (level) => `${level + 3} движения`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Зеркальное письмо',
+    baseDescription: 'Пиши зеркально',
+    icon: 'FlipHorizontal2',
+    getLevelDescription: (level) => `${level + 3} буквы`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Одновременные узоры',
+    baseDescription: 'Рисуй разные фигуры',
+    icon: 'Shapes',
+    getLevelDescription: (level) => `Сложность ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Ритм двух рук',
+    baseDescription: 'Разные ритмы',
+    icon: 'Drum',
+    getLevelDescription: (level) => `${level + 2} такта`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Буквы в зеркале',
+    baseDescription: 'Читай зеркальный текст',
+    icon: 'FlipVertical2',
+    getLevelDescription: (level) => `${level + 4} слова`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Кинезиология',
+    baseDescription: 'Упражнения для мозга',
+    icon: 'Hand',
+    getLevelDescription: (level) => `Комплекс ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  },
+  {
+    name: 'Нейрогимнастика',
+    baseDescription: 'Движения для полушарий',
+    icon: 'Dumbbell',
+    getLevelDescription: (level) => `Уровень ${level + 1}`,
+    getDifficulty: (level) => level <= 3 ? 'easy' : level <= 6 ? 'medium' : 'hard'
+  }
+];
+
+function generateGames(templates: GameTemplate[], startId: number): Game[] {
+  const games: Game[] = [];
+  for (let i = 0; i < 100; i++) {
+    const templateIndex = i % 10;
+    const level = Math.floor(i / 10);
+    const template = templates[templateIndex];
+    
+    games.push({
+      id: startId + i,
+      name: template.name,
+      description: template.getLevelDescription(level),
+      difficulty: template.getDifficulty(level),
+      icon: template.icon,
+      unlocked: i === 0,
+      completed: false,
+      level: level + 1
+    });
+  }
+  return games;
 }
 
 export const categories: Category[] = [
@@ -25,90 +421,40 @@ export const categories: Category[] = [
     name: 'Логика',
     icon: 'Brain',
     color: 'bg-purple',
-    games: [
-      { id: 1, name: 'Судоку', description: 'Заполни числа от 1 до 9', difficulty: 'easy', icon: 'Grid3x3', unlocked: true, completed: false },
-      { id: 2, name: 'Шахматные задачи', description: 'Найди мат в 2 хода', difficulty: 'medium', icon: 'Crown', unlocked: false, completed: false },
-      { id: 3, name: 'Логические цепочки', description: 'Продолжи последовательность', difficulty: 'easy', icon: 'Link', unlocked: false, completed: false },
-      { id: 4, name: 'Ребусы', description: 'Разгадай зашифрованное слово', difficulty: 'medium', icon: 'MessageSquare', unlocked: false, completed: false },
-      { id: 5, name: 'Числовые пирамиды', description: 'Сложи числа правильно', difficulty: 'hard', icon: 'Triangle', unlocked: false, completed: false },
-      { id: 6, name: 'Танграм', description: 'Собери фигуру из частей', difficulty: 'medium', icon: 'Box', unlocked: false, completed: false },
-      { id: 7, name: 'Лабиринты', description: 'Найди выход из лабиринта', difficulty: 'easy', icon: 'Puzzle', unlocked: false, completed: false },
-      { id: 8, name: 'Логические загадки', description: 'Реши хитрую задачу', difficulty: 'hard', icon: 'Lightbulb', unlocked: false, completed: false },
-      { id: 9, name: 'Крестики-нолики 5x5', description: 'Собери 4 в ряд', difficulty: 'medium', icon: 'Grid2x2', unlocked: false, completed: false },
-      { id: 10, name: 'Найди отличия', description: 'Сравни две картинки', difficulty: 'easy', icon: 'Eye', unlocked: false, completed: false },
-    ]
+    gameTemplates: logicTemplates,
+    games: generateGames(logicTemplates, 1)
   },
   {
     id: 'memory',
     name: 'Память',
     icon: 'BookOpen',
     color: 'bg-pink',
-    games: [
-      { id: 11, name: 'Найди пару', description: 'Переверни карточки и найди пары', difficulty: 'easy', icon: 'Copy', unlocked: true, completed: false },
-      { id: 12, name: 'Запомни порядок', description: 'Повтори последовательность', difficulty: 'medium', icon: 'ListOrdered', unlocked: false, completed: false },
-      { id: 13, name: 'Что изменилось?', description: 'Найди изменения на картинке', difficulty: 'medium', icon: 'Search', unlocked: false, completed: false },
-      { id: 14, name: 'Числовой ряд', description: 'Запомни и повтори числа', difficulty: 'hard', icon: 'Hash', unlocked: false, completed: false },
-      { id: 15, name: 'Мемо-слова', description: 'Запомни список слов', difficulty: 'medium', icon: 'Type', unlocked: false, completed: false },
-      { id: 16, name: 'Картинки-память', description: 'Вспомни детали картинки', difficulty: 'easy', icon: 'Image', unlocked: false, completed: false },
-      { id: 17, name: 'Цветовая память', description: 'Запомни цвета и их порядок', difficulty: 'medium', icon: 'Palette', unlocked: false, completed: false },
-      { id: 18, name: 'Звуковая память', description: 'Повтори последовательность звуков', difficulty: 'hard', icon: 'Music', unlocked: false, completed: false },
-      { id: 19, name: 'Мемо-фрукты', description: 'Запомни положение фруктов', difficulty: 'easy', icon: 'Apple', unlocked: false, completed: false },
-      { id: 20, name: 'Кто пропал?', description: 'Найди пропавший предмет', difficulty: 'medium', icon: 'HelpCircle', unlocked: false, completed: false },
-    ]
+    gameTemplates: memoryTemplates,
+    games: generateGames(memoryTemplates, 101)
   },
   {
     id: 'thinking',
     name: 'Мышление',
     icon: 'Sparkles',
     color: 'bg-blue',
-    games: [
-      { id: 21, name: 'Ассоциации', description: 'Найди связь между словами', difficulty: 'easy', icon: 'Shuffle', unlocked: true, completed: false },
-      { id: 22, name: 'Категории', description: 'Раздели предметы по группам', difficulty: 'medium', icon: 'FolderTree', unlocked: false, completed: false },
-      { id: 23, name: 'Причина-следствие', description: 'Определи что было сначала', difficulty: 'medium', icon: 'ArrowRight', unlocked: false, completed: false },
-      { id: 24, name: 'Сравнение', description: 'Найди общее и различное', difficulty: 'easy', icon: 'Scale', unlocked: false, completed: false },
-      { id: 25, name: 'Аналогии', description: 'Подбери похожую пару', difficulty: 'hard', icon: 'GitCompare', unlocked: false, completed: false },
-      { id: 26, name: 'Что лишнее?', description: 'Найди предмет не из этой группы', difficulty: 'easy', icon: 'X', unlocked: false, completed: false },
-      { id: 27, name: 'Собери целое', description: 'Составь объект из частей', difficulty: 'medium', icon: 'Puzzle', unlocked: false, completed: false },
-      { id: 28, name: 'Противоположности', description: 'Найди антонимы', difficulty: 'easy', icon: 'ArrowLeftRight', unlocked: false, completed: false },
-      { id: 29, name: 'Креативное мышление', description: 'Придумай необычное применение', difficulty: 'hard', icon: 'Wand2', unlocked: false, completed: false },
-      { id: 30, name: 'Решение проблем', description: 'Найди выход из ситуации', difficulty: 'hard', icon: 'Target', unlocked: false, completed: false },
-    ]
+    gameTemplates: thinkingTemplates,
+    games: generateGames(thinkingTemplates, 201)
   },
   {
     id: 'reading',
     name: 'Скорочтение',
     icon: 'BookMarked',
     color: 'bg-green',
-    games: [
-      { id: 31, name: 'Таблицы Шульте', description: 'Найди числа по порядку', difficulty: 'medium', icon: 'Table', unlocked: true, completed: false },
-      { id: 32, name: 'Расширение поля зрения', description: 'Увидь текст целиком', difficulty: 'hard', icon: 'Maximize2', unlocked: false, completed: false },
-      { id: 33, name: 'Чтение без возвратов', description: 'Читай только вперёд', difficulty: 'medium', icon: 'FastForward', unlocked: false, completed: false },
-      { id: 34, name: 'Поиск слов', description: 'Найди слово в тексте', difficulty: 'easy', icon: 'SearchCheck', unlocked: false, completed: false },
-      { id: 35, name: 'Скорость чтения', description: 'Читай быстро с пониманием', difficulty: 'hard', icon: 'Gauge', unlocked: false, completed: false },
-      { id: 36, name: 'Анаграммы', description: 'Составь слово из букв', difficulty: 'medium', icon: 'ALargeSmall', unlocked: false, completed: false },
-      { id: 37, name: 'Слоговое чтение', description: 'Читай по слогам быстро', difficulty: 'easy', icon: 'TextCursor', unlocked: false, completed: false },
-      { id: 38, name: 'Вращающийся текст', description: 'Читай под разными углами', difficulty: 'hard', icon: 'RotateCw', unlocked: false, completed: false },
-      { id: 39, name: 'Пропущенные буквы', description: 'Угадай пропущенное', difficulty: 'medium', icon: 'FileQuestion', unlocked: false, completed: false },
-      { id: 40, name: 'Лабиринт слов', description: 'Следуй за текстом', difficulty: 'easy', icon: 'Route', unlocked: false, completed: false },
-    ]
+    gameTemplates: readingTemplates,
+    games: generateGames(readingTemplates, 301)
   },
   {
     id: 'hemispheres',
     name: 'Межполушарные связи',
     icon: 'GitBranch',
     color: 'bg-gold',
-    games: [
-      { id: 41, name: 'Рисуй двумя руками', description: 'Одновременное рисование', difficulty: 'medium', icon: 'PenTool', unlocked: true, completed: false },
-      { id: 42, name: 'Правая-левая', description: 'Различай стороны быстро', difficulty: 'easy', icon: 'Move', unlocked: false, completed: false },
-      { id: 43, name: 'Цвет-слово', description: 'Называй цвет, а не слово', difficulty: 'hard', icon: 'Paintbrush', unlocked: false, completed: false },
-      { id: 44, name: 'Перекрёстные движения', description: 'Координация рук и ног', difficulty: 'medium', icon: 'Activity', unlocked: false, completed: false },
-      { id: 45, name: 'Зеркальное письмо', description: 'Пиши в обе стороны', difficulty: 'hard', icon: 'FlipHorizontal2', unlocked: false, completed: false },
-      { id: 46, name: 'Одновременные узоры', description: 'Рисуй разные фигуры', difficulty: 'hard', icon: 'Shapes', unlocked: false, completed: false },
-      { id: 47, name: 'Ритм двух рук', description: 'Разные ритмы одновременно', difficulty: 'medium', icon: 'Drum', unlocked: false, completed: false },
-      { id: 48, name: 'Буквы в зеркале', description: 'Читай зеркальный текст', difficulty: 'medium', icon: 'FlipVertical2', unlocked: false, completed: false },
-      { id: 49, name: 'Кинезиология', description: 'Упражнения для мозга', difficulty: 'easy', icon: 'Hand', unlocked: false, completed: false },
-      { id: 50, name: 'Нейрогимнастика', description: 'Движения для связи полушарий', difficulty: 'easy', icon: 'Dumbbell', unlocked: false, completed: false },
-    ]
+    gameTemplates: hemispheresTemplates,
+    games: generateGames(hemispheresTemplates, 401)
   }
 ];
 
