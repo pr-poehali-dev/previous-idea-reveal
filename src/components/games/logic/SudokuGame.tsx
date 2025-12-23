@@ -73,17 +73,27 @@ export default function SudokuGame({ level, onBack, onComplete }: SudokuGameProp
   return (
     <GameWrapper
       title="Судоку"
-      description={`Заполни сетку ${size}x${size} числами от 1 до ${size}`}
+      description={`Заполни пустые клеточки числами от 1 до ${size}. В каждой строке и столбце все числа должны быть разными!`}
       level={level}
       onBack={onBack}
       onComplete={onComplete}
     >
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <p className="text-sm text-muted-foreground">Ошибки: {mistakes}</p>
+          <p className="text-lg font-bold text-red-600">❌ Ошибки: {mistakes}</p>
           <Button onClick={generatePuzzle} variant="outline" size="sm">
-            Новая игра
+            🔄 Новая игра
           </Button>
+        </div>
+        
+        <div className="bg-blue-50 p-4 rounded-lg text-sm space-y-2">
+          <p className="font-bold">💡 Как играть:</p>
+          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+            <li>Нажми на пустую клеточку (серую)</li>
+            <li>Выбери число внизу</li>
+            <li>В каждой строке и столбце все числа должны быть разными!</li>
+            <li>Синие клеточки нельзя менять</li>
+          </ul>
         </div>
         
         <div className="flex justify-center">

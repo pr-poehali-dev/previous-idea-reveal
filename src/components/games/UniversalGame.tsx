@@ -70,20 +70,30 @@ export default function UniversalGame({
           </div>
         </div>
         
+        <div className="bg-blue-50 p-4 rounded-lg text-sm space-y-2">
+          <p className="font-bold">💡 Как играть:</p>
+          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+            <li>Нажми "Начать игру"</li>
+            <li>У тебя будет {30 + level * 10} секунд</li>
+            <li>Выполни задание из описания</li>
+            <li>Когда закончишь, нажми "Готово!"</li>
+          </ul>
+        </div>
+        
         <div className="flex flex-col gap-4">
           {!isPlaying ? (
-            <Button onClick={handleStart} size="lg" className="w-full">
-              Начать игру
+            <Button onClick={handleStart} size="lg" className="w-full text-xl py-6">
+              🎮 Начать игру
             </Button>
           ) : (
             <>
-              <div className="p-6 bg-primary/10 rounded-lg border-2 border-primary">
-                <p className="text-center text-lg">
-                  Выполни задание и нажми "Готово"
+              <div className="p-6 bg-primary/10 rounded-lg border-2 border-primary animate-pulse">
+                <p className="text-center text-xl font-bold">
+                  ⏱️ Выполни задание и нажми "Готово"
                 </p>
               </div>
-              <Button onClick={handleComplete} size="lg" className="w-full">
-                Готово!
+              <Button onClick={handleComplete} size="lg" className="w-full bg-green-600 hover:bg-green-700 text-xl py-6">
+                ✅ Готово!
               </Button>
             </>
           )}

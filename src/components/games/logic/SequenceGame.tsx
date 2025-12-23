@@ -45,7 +45,7 @@ export default function SequenceGame({ level, onBack, onComplete }: SequenceGame
   return (
     <GameWrapper
       title="Логические цепочки"
-      description="Продолжи последовательность чисел"
+      description="Найди правило и узнай, какое число должно быть следующим?"
       level={level}
       onBack={onBack}
       onComplete={onComplete}
@@ -78,10 +78,19 @@ export default function SequenceGame({ level, onBack, onComplete }: SequenceGame
         </div>
         
         {attempts > 0 && parseInt(answer) !== correctAnswer && (
-          <p className="text-center text-red-600 font-bold">
-            Попробуй ещё раз! (Попытка {attempts})
+          <p className="text-center text-red-600 font-bold text-xl">
+            ❌ Попробуй ещё раз! (Попытка {attempts})
           </p>
         )}
+        
+        <div className="bg-blue-50 p-4 rounded-lg text-sm space-y-2">
+          <p className="font-bold">💡 Подсказка:</p>
+          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+            <li>Посмотри, как меняются числа слева направо</li>
+            <li>Может быть, каждое число увеличивается на одно и то же?</li>
+            <li>Например: 2, 4, 6, 8 → каждое число +2</li>
+          </ul>
+        </div>
         
         <Button onClick={generateSequence} variant="outline" className="w-full">
           Новая последовательность
