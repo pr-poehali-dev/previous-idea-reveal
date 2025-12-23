@@ -23,25 +23,33 @@ export default function PyramidGame({ level, onBack, onComplete }: PyramidGamePr
     const newPyramid: (number | null)[][] = [];
     const newSolution: number[][] = [];
     
+    // Заполняем нижний ряд случайными числами (основание пирамиды)
     for (let row = 0; row < rows; row++) {
       newPyramid[row] = [];
       newSolution[row] = [];
       
       for (let col = 0; col <= row; col++) {
-        if (row === 0) {
-          const num = Math.floor(Math.random() * 5) + 1;
+        if (row === rows - 1) {
+          // Нижний ряд - случайные числа от 1 до 9
+          const num = Math.floor(Math.random() * 9) + 1;
           newSolution[row][col] = num;
           newPyramid[row][col] = num;
+        }
+      }
+    }
+    
+    // Заполняем пирамиду снизу вверх: каждое число = сумма двух чисел снизу
+    for (let row = rows - 2; row >= 0; row--) {
+      for (let col = 0; col <= row; col++) {
+        const leftBelow = newSolution[row + 1][col];
+        const rightBelow = newSolution[row + 1][col + 1];
+        newSolution[row][col] = leftBelow + rightBelow;
+        
+        // Делаем некоторые клетки пустыми (кроме верхушки)
+        if (row === 0 || Math.random() > 0.5) {
+          newPyramid[row][col] = null;
         } else {
-          const left = newSolution[row - 1][col - 1] || 0;
-          const right = newSolution[row - 1][col] || 0;
-          newSolution[row][col] = left + right;
-          
-          if (row === rows - 1 || Math.random() > 0.6) {
-            newPyramid[row][col] = null;
-          } else {
-            newPyramid[row][col] = newSolution[row][col];
-          }
+          newPyramid[row][col] = newSolution[row][col];
         }
       }
     }
@@ -123,14 +131,14 @@ export default function PyramidGame({ level, onBack, onComplete }: PyramidGamePr
           </div>
         </div>
 
-        <div className="flex justify-center gap-2 flex-wrap">
-          {Array.from({ length: 10 }, (_, i) => i + 1).map(num => (
+        <div className="flex justify-center gap-2 flex-wrap max-w-2xl mx-auto">
+          {Array.from({ length: 20 }, (_, i) => i + 1).map(num => (
             <Button
               key={num}
               onClick={() => handleNumberClick(num)}
               size="lg"
               variant="outline"
-              className="w-14 h-14 text-xl font-bold"
+              className="w-14 h-14 text-lg font-bold"
               disabled={!selectedCell}
             >
               {num}
@@ -141,11 +149,24 @@ export default function PyramidGame({ level, onBack, onComplete }: PyramidGamePr
         <div className="bg-blue-50 p-4 rounded-lg text-sm space-y-2">
           <p className="font-bold">💡 Правило игры:</p>
           <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-            <li>Каждое число в пирамиде = сумма двух чисел над ним</li>
-            <li>Например: если сверху 2 и 3, то внизу будет 5</li>
-            <li>Нажми на клетку с "?" и выбери число внизу</li>
-            <li>Синие клетки - это подсказки, их менять нельзя</li>
+            <li><strong>Главное правило:</strong> Каждое число = сумма двух чисел ПОД ним</li>
+            <li>Например: если снизу 2 и 3, то сверху будет 2+3=5</li>
+            <li>Самый нижний ряд уже заполнен - это основание пирамиды</li>
+            <li>Заполни пустые клетки "?" складывая числа снизу</li>
+            <li>Синие клетки - подсказки, их менять нельзя</li>
           </ul>
+          <div className="mt-4 p-3 bg-white rounded border-2 border-blue-300">
+            <p className="font-bold text-center mb-2">Пример:</p>
+            <div className="flex flex-col items-center gap-1">
+              <div className="text-2xl font-bold text-green-600">[10]</div>
+              <div className="text-lg">↗ ↖</div>
+              <div className="flex gap-2 text-2xl font-bold">
+                <span>[4]</span>
+                <span>[6]</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">10 = 4 + 6</p>
+            </div>
+          </div>
         </div>
       </div>
     </GameWrapper>
