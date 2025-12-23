@@ -395,9 +395,7 @@ export default function Index() {
             })}
             </div>
           </div>
-        )}
-        
-        {!selectedGame && !selectedCategory && !showProfile && (
+        ) : (
           <div>
             <div className="text-center mb-12">
               <h2 className="text-5xl font-bold mb-4 text-primary">
