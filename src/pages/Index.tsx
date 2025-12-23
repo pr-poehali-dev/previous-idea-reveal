@@ -1,10 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
+import GameMemoryMatch from '@/components/GameMemoryMatch';
+import GameSudoku from '@/components/GameSudoku';
+import GameSchulteTable from '@/components/GameSchulteTable';
+import GameAssociations from '@/components/GameAssociations';
+import GameDrawTwoHands from '@/components/GameDrawTwoHands';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -14,6 +19,9 @@ interface Game {
   description: string;
   difficulty: Difficulty;
   icon: string;
+  unlocked: boolean;
+  completed: boolean;
+  score?: number;
 }
 
 interface Category {
@@ -31,16 +39,16 @@ const categories: Category[] = [
     icon: 'Brain',
     color: 'bg-purple',
     games: [
-      { id: 1, name: 'Судоку', description: 'Заполни числа от 1 до 9', difficulty: 'easy', icon: 'Grid3x3' },
-      { id: 2, name: 'Шахматные задачи', description: 'Найди мат в 2 хода', difficulty: 'medium', icon: 'Crown' },
-      { id: 3, name: 'Логические цепочки', description: 'Продолжи последовательность', difficulty: 'easy', icon: 'Link' },
-      { id: 4, name: 'Ребусы', description: 'Разгадай зашифрованное слово', difficulty: 'medium', icon: 'MessageSquare' },
-      { id: 5, name: 'Числовые пирамиды', description: 'Сложи числа правильно', difficulty: 'hard', icon: 'Triangle' },
-      { id: 6, name: 'Танграм', description: 'Собери фигуру из частей', difficulty: 'medium', icon: 'Box' },
-      { id: 7, name: 'Лабиринты', description: 'Найди выход из лабиринта', difficulty: 'easy', icon: 'Puzzle' },
-      { id: 8, name: 'Логические загадки', description: 'Реши хитрую задачу', difficulty: 'hard', icon: 'Lightbulb' },
-      { id: 9, name: 'Крестики-нолики 5x5', description: 'Собери 4 в ряд', difficulty: 'medium', icon: 'Grid2x2' },
-      { id: 10, name: 'Найди отличия', description: 'Сравни две картинки', difficulty: 'easy', icon: 'Eye' },
+      { id: 1, name: 'Судоку', description: 'Заполни числа от 1 до 9', difficulty: 'easy', icon: 'Grid3x3', unlocked: true, completed: false },
+      { id: 2, name: 'Шахматные задачи', description: 'Найди мат в 2 хода', difficulty: 'medium', icon: 'Crown', unlocked: false, completed: false },
+      { id: 3, name: 'Логические цепочки', description: 'Продолжи последовательность', difficulty: 'easy', icon: 'Link', unlocked: false, completed: false },
+      { id: 4, name: 'Ребусы', description: 'Разгадай зашифрованное слово', difficulty: 'medium', icon: 'MessageSquare', unlocked: false, completed: false },
+      { id: 5, name: 'Числовые пирамиды', description: 'Сложи числа правильно', difficulty: 'hard', icon: 'Triangle', unlocked: false, completed: false },
+      { id: 6, name: 'Танграм', description: 'Собери фигуру из частей', difficulty: 'medium', icon: 'Box', unlocked: false, completed: false },
+      { id: 7, name: 'Лабиринты', description: 'Найди выход из лабиринта', difficulty: 'easy', icon: 'Puzzle', unlocked: false, completed: false },
+      { id: 8, name: 'Логические загадки', description: 'Реши хитрую задачу', difficulty: 'hard', icon: 'Lightbulb', unlocked: false, completed: false },
+      { id: 9, name: 'Крестики-нолики 5x5', description: 'Собери 4 в ряд', difficulty: 'medium', icon: 'Grid2x2', unlocked: false, completed: false },
+      { id: 10, name: 'Найди отличия', description: 'Сравни две картинки', difficulty: 'easy', icon: 'Eye', unlocked: false, completed: false },
     ]
   },
   {
@@ -49,16 +57,16 @@ const categories: Category[] = [
     icon: 'BookOpen',
     color: 'bg-pink',
     games: [
-      { id: 11, name: 'Найди пару', description: 'Переверни карточки и найди пары', difficulty: 'easy', icon: 'Copy' },
-      { id: 12, name: 'Запомни порядок', description: 'Повтори последовательность', difficulty: 'medium', icon: 'ListOrdered' },
-      { id: 13, name: 'Что изменилось?', description: 'Найди изменения на картинке', difficulty: 'medium', icon: 'Search' },
-      { id: 14, name: 'Числовой ряд', description: 'Запомни и повтори числа', difficulty: 'hard', icon: 'Hash' },
-      { id: 15, name: 'Мемо-слова', description: 'Запомни список слов', difficulty: 'medium', icon: 'Type' },
-      { id: 16, name: 'Картинки-память', description: 'Вспомни детали картинки', difficulty: 'easy', icon: 'Image' },
-      { id: 17, name: 'Цветовая память', description: 'Запомни цвета и их порядок', difficulty: 'medium', icon: 'Palette' },
-      { id: 18, name: 'Звуковая память', description: 'Повтори последовательность звуков', difficulty: 'hard', icon: 'Music' },
-      { id: 19, name: 'Мемо-фрукты', description: 'Запомни положение фруктов', difficulty: 'easy', icon: 'Apple' },
-      { id: 20, name: 'Кто пропал?', description: 'Найди пропавший предмет', difficulty: 'medium', icon: 'HelpCircle' },
+      { id: 11, name: 'Найди пару', description: 'Переверни карточки и найди пары', difficulty: 'easy', icon: 'Copy', unlocked: true, completed: false },
+      { id: 12, name: 'Запомни порядок', description: 'Повтори последовательность', difficulty: 'medium', icon: 'ListOrdered', unlocked: false, completed: false },
+      { id: 13, name: 'Что изменилось?', description: 'Найди изменения на картинке', difficulty: 'medium', icon: 'Search', unlocked: false, completed: false },
+      { id: 14, name: 'Числовой ряд', description: 'Запомни и повтори числа', difficulty: 'hard', icon: 'Hash', unlocked: false, completed: false },
+      { id: 15, name: 'Мемо-слова', description: 'Запомни список слов', difficulty: 'medium', icon: 'Type', unlocked: false, completed: false },
+      { id: 16, name: 'Картинки-память', description: 'Вспомни детали картинки', difficulty: 'easy', icon: 'Image', unlocked: false, completed: false },
+      { id: 17, name: 'Цветовая память', description: 'Запомни цвета и их порядок', difficulty: 'medium', icon: 'Palette', unlocked: false, completed: false },
+      { id: 18, name: 'Звуковая память', description: 'Повтори последовательность звуков', difficulty: 'hard', icon: 'Music', unlocked: false, completed: false },
+      { id: 19, name: 'Мемо-фрукты', description: 'Запомни положение фруктов', difficulty: 'easy', icon: 'Apple', unlocked: false, completed: false },
+      { id: 20, name: 'Кто пропал?', description: 'Найди пропавший предмет', difficulty: 'medium', icon: 'HelpCircle', unlocked: false, completed: false },
     ]
   },
   {
@@ -67,16 +75,16 @@ const categories: Category[] = [
     icon: 'Sparkles',
     color: 'bg-blue',
     games: [
-      { id: 21, name: 'Ассоциации', description: 'Найди связь между словами', difficulty: 'easy', icon: 'Shuffle' },
-      { id: 22, name: 'Категории', description: 'Раздели предметы по группам', difficulty: 'medium', icon: 'FolderTree' },
-      { id: 23, name: 'Причина-следствие', description: 'Определи что было сначала', difficulty: 'medium', icon: 'ArrowRight' },
-      { id: 24, name: 'Сравнение', description: 'Найди общее и различное', difficulty: 'easy', icon: 'Scale' },
-      { id: 25, name: 'Аналогии', description: 'Подбери похожую пару', difficulty: 'hard', icon: 'GitCompare' },
-      { id: 26, name: 'Что лишнее?', description: 'Найди предмет не из этой группы', difficulty: 'easy', icon: 'X' },
-      { id: 27, name: 'Собери целое', description: 'Составь объект из частей', difficulty: 'medium', icon: 'Puzzle' },
-      { id: 28, name: 'Противоположности', description: 'Найди антонимы', difficulty: 'easy', icon: 'ArrowLeftRight' },
-      { id: 29, name: 'Креативное мышление', description: 'Придумай необычное применение', difficulty: 'hard', icon: 'Wand2' },
-      { id: 30, name: 'Решение проблем', description: 'Найди выход из ситуации', difficulty: 'hard', icon: 'Target' },
+      { id: 21, name: 'Ассоциации', description: 'Найди связь между словами', difficulty: 'easy', icon: 'Shuffle', unlocked: true, completed: false },
+      { id: 22, name: 'Категории', description: 'Раздели предметы по группам', difficulty: 'medium', icon: 'FolderTree', unlocked: false, completed: false },
+      { id: 23, name: 'Причина-следствие', description: 'Определи что было сначала', difficulty: 'medium', icon: 'ArrowRight', unlocked: false, completed: false },
+      { id: 24, name: 'Сравнение', description: 'Найди общее и различное', difficulty: 'easy', icon: 'Scale', unlocked: false, completed: false },
+      { id: 25, name: 'Аналогии', description: 'Подбери похожую пару', difficulty: 'hard', icon: 'GitCompare', unlocked: false, completed: false },
+      { id: 26, name: 'Что лишнее?', description: 'Найди предмет не из этой группы', difficulty: 'easy', icon: 'X', unlocked: false, completed: false },
+      { id: 27, name: 'Собери целое', description: 'Составь объект из частей', difficulty: 'medium', icon: 'Puzzle', unlocked: false, completed: false },
+      { id: 28, name: 'Противоположности', description: 'Найди антонимы', difficulty: 'easy', icon: 'ArrowLeftRight', unlocked: false, completed: false },
+      { id: 29, name: 'Креативное мышление', description: 'Придумай необычное применение', difficulty: 'hard', icon: 'Wand2', unlocked: false, completed: false },
+      { id: 30, name: 'Решение проблем', description: 'Найди выход из ситуации', difficulty: 'hard', icon: 'Target', unlocked: false, completed: false },
     ]
   },
   {
@@ -85,16 +93,16 @@ const categories: Category[] = [
     icon: 'BookMarked',
     color: 'bg-green',
     games: [
-      { id: 31, name: 'Таблицы Шульте', description: 'Найди числа по порядку', difficulty: 'medium', icon: 'Table' },
-      { id: 32, name: 'Расширение поля зрения', description: 'Увидь текст целиком', difficulty: 'hard', icon: 'Maximize2' },
-      { id: 33, name: 'Чтение без возвратов', description: 'Читай только вперёд', difficulty: 'medium', icon: 'FastForward' },
-      { id: 34, name: 'Поиск слов', description: 'Найди слово в тексте', difficulty: 'easy', icon: 'SearchCheck' },
-      { id: 35, name: 'Скорость чтения', description: 'Читай быстро с пониманием', difficulty: 'hard', icon: 'Gauge' },
-      { id: 36, name: 'Анаграммы', description: 'Составь слово из букв', difficulty: 'medium', icon: 'ALargeSmall' },
-      { id: 37, name: 'Слоговое чтение', description: 'Читай по слогам быстро', difficulty: 'easy', icon: 'TextCursor' },
-      { id: 38, name: 'Вращающийся текст', description: 'Читай под разными углами', difficulty: 'hard', icon: 'RotateCw' },
-      { id: 39, name: 'Пропущенные буквы', description: 'Угадай пропущенное', difficulty: 'medium', icon: 'FileQuestion' },
-      { id: 40, name: 'Лабиринт слов', description: 'Следуй за текстом', difficulty: 'easy', icon: 'Route' },
+      { id: 31, name: 'Таблицы Шульте', description: 'Найди числа по порядку', difficulty: 'medium', icon: 'Table', unlocked: true, completed: false },
+      { id: 32, name: 'Расширение поля зрения', description: 'Увидь текст целиком', difficulty: 'hard', icon: 'Maximize2', unlocked: false, completed: false },
+      { id: 33, name: 'Чтение без возвратов', description: 'Читай только вперёд', difficulty: 'medium', icon: 'FastForward', unlocked: false, completed: false },
+      { id: 34, name: 'Поиск слов', description: 'Найди слово в тексте', difficulty: 'easy', icon: 'SearchCheck', unlocked: false, completed: false },
+      { id: 35, name: 'Скорость чтения', description: 'Читай быстро с пониманием', difficulty: 'hard', icon: 'Gauge', unlocked: false, completed: false },
+      { id: 36, name: 'Анаграммы', description: 'Составь слово из букв', difficulty: 'medium', icon: 'ALargeSmall', unlocked: false, completed: false },
+      { id: 37, name: 'Слоговое чтение', description: 'Читай по слогам быстро', difficulty: 'easy', icon: 'TextCursor', unlocked: false, completed: false },
+      { id: 38, name: 'Вращающийся текст', description: 'Читай под разными углами', difficulty: 'hard', icon: 'RotateCw', unlocked: false, completed: false },
+      { id: 39, name: 'Пропущенные буквы', description: 'Угадай пропущенное', difficulty: 'medium', icon: 'FileQuestion', unlocked: false, completed: false },
+      { id: 40, name: 'Лабиринт слов', description: 'Следуй за текстом', difficulty: 'easy', icon: 'Route', unlocked: false, completed: false },
     ]
   },
   {
@@ -103,16 +111,16 @@ const categories: Category[] = [
     icon: 'GitBranch',
     color: 'bg-gold',
     games: [
-      { id: 41, name: 'Рисуй двумя руками', description: 'Одновременное рисование', difficulty: 'medium', icon: 'PenTool' },
-      { id: 42, name: 'Правая-левая', description: 'Различай стороны быстро', difficulty: 'easy', icon: 'Move' },
-      { id: 43, name: 'Цвет-слово', description: 'Называй цвет, а не слово', difficulty: 'hard', icon: 'Paintbrush' },
-      { id: 44, name: 'Перекрёстные движения', description: 'Координация рук и ног', difficulty: 'medium', icon: 'Activity' },
-      { id: 45, name: 'Зеркальное письмо', description: 'Пиши в обе стороны', difficulty: 'hard', icon: 'FlipHorizontal2' },
-      { id: 46, name: 'Одновременные узоры', description: 'Рисуй разные фигуры', difficulty: 'hard', icon: 'Shapes' },
-      { id: 47, name: 'Ритм двух рук', description: 'Разные ритмы одновременно', difficulty: 'medium', icon: 'Drum' },
-      { id: 48, name: 'Буквы в зеркале', description: 'Читай зеркальный текст', difficulty: 'medium', icon: 'FlipVertical2' },
-      { id: 49, name: 'Кинезиология', description: 'Упражнения для мозга', difficulty: 'easy', icon: 'Hand' },
-      { id: 50, name: 'Нейрогимнастика', description: 'Движения для связи полушарий', difficulty: 'easy', icon: 'Dumbbell' },
+      { id: 41, name: 'Рисуй двумя руками', description: 'Одновременное рисование', difficulty: 'medium', icon: 'PenTool', unlocked: true, completed: false },
+      { id: 42, name: 'Правая-левая', description: 'Различай стороны быстро', difficulty: 'easy', icon: 'Move', unlocked: false, completed: false },
+      { id: 43, name: 'Цвет-слово', description: 'Называй цвет, а не слово', difficulty: 'hard', icon: 'Paintbrush', unlocked: false, completed: false },
+      { id: 44, name: 'Перекрёстные движения', description: 'Координация рук и ног', difficulty: 'medium', icon: 'Activity', unlocked: false, completed: false },
+      { id: 45, name: 'Зеркальное письмо', description: 'Пиши в обе стороны', difficulty: 'hard', icon: 'FlipHorizontal2', unlocked: false, completed: false },
+      { id: 46, name: 'Одновременные узоры', description: 'Рисуй разные фигуры', difficulty: 'hard', icon: 'Shapes', unlocked: false, completed: false },
+      { id: 47, name: 'Ритм двух рук', description: 'Разные ритмы одновременно', difficulty: 'medium', icon: 'Drum', unlocked: false, completed: false },
+      { id: 48, name: 'Буквы в зеркале', description: 'Читай зеркальный текст', difficulty: 'medium', icon: 'FlipVertical2', unlocked: false, completed: false },
+      { id: 49, name: 'Кинезиология', description: 'Упражнения для мозга', difficulty: 'easy', icon: 'Hand', unlocked: false, completed: false },
+      { id: 50, name: 'Нейрогимнастика', description: 'Движения для связи полушарий', difficulty: 'easy', icon: 'Dumbbell', unlocked: false, completed: false },
     ]
   }
 ];
@@ -128,11 +136,27 @@ const avatars = [
 
 export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [selectedAvatar, setSelectedAvatar] = useState<string>(avatars[0]);
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [playerLevel] = useState<number>(5);
   const [playerXP] = useState<number>(65);
   const [playerRank] = useState<number>(234);
+  const [gameProgress, setGameProgress] = useState<{[key: number]: {completed: boolean, score: number}}>({});
+  
+  useEffect(() => {
+    const saved = localStorage.getItem('brainup_progress');
+    if (saved) {
+      setGameProgress(JSON.parse(saved));
+    }
+  }, []);
+  
+  const completeGame = (gameId: number, score: number) => {
+    const newProgress = { ...gameProgress, [gameId]: { completed: true, score } };
+    setGameProgress(newProgress);
+    localStorage.setItem('brainup_progress', JSON.stringify(newProgress));
+    setSelectedGame(null);
+  };
   
   const difficultyColors = {
     easy: 'bg-green/20 text-green-700 border-green-300',
@@ -152,9 +176,9 @@ export default function Index() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img 
-              src="https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/ba60b2d7-b9e5-4f4f-b474-821131154cb7.jpg" 
+              src="https://cdn.poehali.dev/projects/d1692d23-0eae-4eca-981c-86c66d40d778/files/ba3a15b7-96f2-46ce-8e98-f1ed8a1649d0.jpg" 
               alt="BrainUP" 
-              className="w-16 h-16 animate-bounce-gentle"
+              className="w-24 h-24 animate-bounce-gentle"
             />
             <div>
               <h1 className="text-3xl font-bold text-primary">BrainUP</h1>
@@ -179,7 +203,15 @@ export default function Index() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {showProfile ? (
+        {selectedGame ? (
+          <div>
+            {selectedGame.id === 11 && <GameMemoryMatch onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            {selectedGame.id === 1 && <GameSudoku onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            {selectedGame.id === 31 && <GameSchulteTable onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            {selectedGame.id === 21 && <GameAssociations onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+            {selectedGame.id === 41 && <GameDrawTwoHands onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
+          </div>
+        ) : showProfile ? (
           <Card className="max-w-2xl mx-auto shadow-xl border-4 border-primary">
             <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
               <div className="flex items-center gap-6">
@@ -278,17 +310,43 @@ export default function Index() {
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories.find(c => c.id === selectedCategory)?.games.map(game => (
+              {categories.find(c => c.id === selectedCategory)?.games.map((game, idx) => {
+                const prevGame = idx > 0 ? categories.find(c => c.id === selectedCategory)?.games[idx - 1] : null;
+                const isUnlocked = game.unlocked || (prevGame && gameProgress[prevGame.id]?.completed);
+                const isCompleted = gameProgress[game.id]?.completed;
+                
+                return (
                 <Card 
                   key={game.id} 
-                  className="hover:shadow-2xl transition-all hover:-translate-y-2 border-2 cursor-pointer"
+                  className={`transition-all border-2 ${
+                    isUnlocked 
+                      ? 'hover:shadow-2xl hover:-translate-y-2 cursor-pointer' 
+                      : 'opacity-50 cursor-not-allowed grayscale'
+                  } ${
+                    isCompleted ? 'border-green-500 bg-green-50' : ''
+                  }`}
+                  onClick={() => isUnlocked && setSelectedGame(game)}
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <Icon 
-                        name={game.icon} 
-                        className="text-primary w-12 h-12 mb-2" 
-                      />
+                      <div className="relative">
+                        <Icon 
+                          name={game.icon} 
+                          className="text-primary w-12 h-12 mb-2" 
+                        />
+                        {isCompleted && (
+                          <Icon 
+                            name="CheckCircle2" 
+                            className="absolute -top-1 -right-1 text-green-600 w-6 h-6" 
+                          />
+                        )}
+                        {!isUnlocked && (
+                          <Icon 
+                            name="Lock" 
+                            className="absolute -top-1 -right-1 text-gray-600 w-6 h-6" 
+                          />
+                        )}
+                      </div>
                       <Badge 
                         variant="outline" 
                         className={difficultyColors[game.difficulty]}
@@ -298,18 +356,47 @@ export default function Index() {
                     </div>
                     <CardTitle className="text-xl">{game.name}</CardTitle>
                     <CardDescription>{game.description}</CardDescription>
+                    {isCompleted && gameProgress[game.id]?.score !== undefined && (
+                      <div className="mt-2 text-sm font-bold text-green-600">
+                        Результат: {gameProgress[game.id].score}/100
+                      </div>
+                    )}
                   </CardHeader>
                   <CardContent>
-                    <Button className="w-full" size="lg">
-                      Играть
-                      <Icon name="Play" className="ml-2" size={18} />
+                    <Button 
+                      className="w-full" 
+                      size="lg"
+                      disabled={!isUnlocked}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isUnlocked) setSelectedGame(game);
+                      }}
+                    >
+                      {!isUnlocked ? (
+                        <>
+                          <Icon name="Lock" className="mr-2" size={18} />
+                          Заблокировано
+                        </>
+                      ) : isCompleted ? (
+                        <>
+                          <Icon name="RotateCcw" className="mr-2" size={18} />
+                          Переиграть
+                        </>
+                      ) : (
+                        <>
+                          Играть
+                          <Icon name="Play" className="ml-2" size={18} />
+                        </>
+                      )}
                     </Button>
                   </CardContent>
                 </Card>
-              ))}
+              );})}
             </div>
           </div>
-        ) : (
+        )}
+        
+        {!selectedGame && !selectedCategory && !showProfile && (
           <div>
             <div className="text-center mb-12">
               <h2 className="text-5xl font-bold mb-4 text-primary">
