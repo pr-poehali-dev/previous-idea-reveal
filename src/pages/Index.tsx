@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import GameSimpleMemory from '@/components/GameSimpleMemory';
 import GameSimpleSudoku from '@/components/GameSimpleSudoku';
@@ -11,6 +13,7 @@ import GameSimpleSchulte from '@/components/GameSimpleSchulte';
 import GameSimpleAssociations from '@/components/GameSimpleAssociations';
 import GameSimpleDraw from '@/components/GameSimpleDraw';
 import Logo from '@/components/Logo';
+import PageTransition from '@/components/PageTransition';
 
 type Difficulty = 'easy' | 'medium' | 'hard';
 
@@ -149,6 +152,7 @@ export default function Index() {
     return 'default';
   };
   const [selectedAvatar, setSelectedAvatar] = useState<string>(avatars[0]);
+  const [playerNickname, setPlayerNickname] = useState<string>('');
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [playerLevel] = useState<number>(5);
   const [playerXP] = useState<number>(65);
@@ -160,7 +164,16 @@ export default function Index() {
     if (saved) {
       setGameProgress(JSON.parse(saved));
     }
+    const savedNickname = localStorage.getItem('brainup_nickname');
+    if (savedNickname) {
+      setPlayerNickname(savedNickname);
+    }
   }, []);
+  
+  const handleNicknameChange = (value: string) => {
+    setPlayerNickname(value);
+    localStorage.setItem('brainup_nickname', value);
+  };
   
   const completeGame = (gameId: number, score: number) => {
     const newProgress = { ...gameProgress, [gameId]: { completed: true, score } };
@@ -211,15 +224,16 @@ export default function Index() {
 
       <main className="container mx-auto px-4 py-8">
         {selectedGame ? (
-          <div>
+          <PageTransition pageKey={`game-${selectedGame.id}`}>
             {selectedGame.id === 11 && <GameSimpleMemory onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
             {selectedGame.id === 1 && <GameSimpleSudoku onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
             {selectedGame.id === 31 && <GameSimpleSchulte onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
             {selectedGame.id === 21 && <GameSimpleAssociations onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
             {selectedGame.id === 41 && <GameSimpleDraw onComplete={(score) => completeGame(selectedGame.id, score)} onBack={() => setSelectedGame(null)} />}
-          </div>
+          </PageTransition>
         ) : showProfile ? (
-          <Card className="max-w-2xl mx-auto shadow-xl border-4 border-primary">
+          <PageTransition pageKey="profile">
+            <Card className="max-w-2xl mx-auto shadow-xl border-4 border-primary">
             <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10">
               <div className="flex items-center gap-6">
                 <Avatar className="w-24 h-24 border-4 border-primary">
@@ -227,11 +241,14 @@ export default function Index() {
                   <AvatarFallback>👤</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <CardTitle className="text-3xl">Игрок #{playerRank}</CardTitle>
-                  <CardDescription className="text-lg">Уровень {playerLevel}</CardDescription>
+                  <CardTitle className="text-3xl">{playerNickname || `Игрок #${playerRank}`}</CardTitle>
+                  <CardDescription className="text-lg flex items-center gap-2">
+                    <Icon name="Award" className="text-gold" size={20} />
+                    Уровень {playerLevel}
+                  </CardDescription>
                   <div className="mt-2">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">Прогресс</span>
+                      <span className="text-sm font-medium">Прогресс до следующего уровня</span>
                       <span className="text-sm text-muted-foreground">{playerXP}%</span>
                     </div>
                     <Progress value={playerXP} className="h-3" />
@@ -243,32 +260,66 @@ export default function Index() {
               <div className="space-y-6">
                 <div>
                   <h3 className="font-bold text-xl mb-3 flex items-center gap-2">
-                    <Icon name="Trophy" className="text-gold" />
-                    Достижения
+                    <Icon name="User" className="text-primary" />
+                    Твой никнейм
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div className="flex flex-col items-center p-3 bg-gold/10 rounded-lg border-2 border-gold">
-                      <Icon name="Star" className="text-gold w-8 h-8 mb-1" />
-                      <span className="text-xs font-medium">Звезда</span>
-                    </div>
-                    <div className="flex flex-col items-center p-3 bg-primary/10 rounded-lg border-2 border-primary">
-                      <Icon name="Zap" className="text-primary w-8 h-8 mb-1" />
-                      <span className="text-xs font-medium">Молния</span>
-                    </div>
-                    <div className="flex flex-col items-center p-3 bg-green/10 rounded-lg border-2 border-green">
-                      <Icon name="Target" className="text-green-700 w-8 h-8 mb-1" />
-                      <span className="text-xs font-medium">Меткий</span>
-                    </div>
-                    <div className="flex flex-col items-center p-3 bg-pink/10 rounded-lg border-2 border-pink">
-                      <Icon name="Heart" className="text-pink-700 w-8 h-8 mb-1" />
-                      <span className="text-xs font-medium">Любитель</span>
-                    </div>
+                  <div>
+                    <Label htmlFor="nickname" className="text-sm text-muted-foreground">Придумай себе крутое имя!</Label>
+                    <Input
+                      id="nickname"
+                      type="text"
+                      placeholder="Например: МозгоШтурм"
+                      value={playerNickname}
+                      onChange={(e) => handleNicknameChange(e.target.value)}
+                      className="mt-2"
+                      maxLength={20}
+                    />
                   </div>
                 </div>
 
                 <div>
                   <h3 className="font-bold text-xl mb-3 flex items-center gap-2">
-                    <Icon name="User" className="text-primary" />
+                    <Icon name="Trophy" className="text-gold" />
+                    Достижения
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {categories.map((category) => {
+                      const completedGames = category.games.filter(g => gameProgress[g.id]?.completed).length;
+                      const totalGames = category.games.length;
+                      const isUnlocked = completedGames > 0;
+                      
+                      return (
+                        <div 
+                          key={category.id}
+                          className={`flex flex-col items-center p-4 rounded-lg border-2 transition-all ${
+                            isUnlocked 
+                              ? `${category.color}/20 border-${category.color.replace('bg-', '')} shadow-md` 
+                              : 'bg-gray-100 border-gray-300 opacity-50'
+                          }`}
+                        >
+                          <Icon 
+                            name={category.icon} 
+                            className={`${isUnlocked ? '' : 'text-gray-400'} w-10 h-10 mb-2`}
+                          />
+                          <span className="text-xs font-bold text-center mb-1">{category.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {completedGames}/{totalGames}
+                          </span>
+                          {completedGames === totalGames && totalGames > 0 && (
+                            <Badge className="mt-2 bg-gold text-white">
+                              <Icon name="CheckCircle" className="w-3 h-3 mr-1" />
+                              100%
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-bold text-xl mb-3 flex items-center gap-2">
+                    <Icon name="Image" className="text-primary" />
                     Выбери аватар
                   </h3>
                   <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
@@ -296,8 +347,10 @@ export default function Index() {
               </div>
             </CardContent>
           </Card>
+          </PageTransition>
         ) : selectedCategory ? (
-          <div>
+          <PageTransition pageKey={`category-${selectedCategory}`}>
+            <div>
             <Button 
               onClick={() => setSelectedCategory(null)} 
               variant="outline" 
@@ -401,9 +454,11 @@ export default function Index() {
               );
             })}
             </div>
-          </div>
+            </div>
+          </PageTransition>
         ) : (
-          <div>
+          <PageTransition pageKey="home">
+            <div>
             <div className="text-center mb-12">
               <h2 className="text-5xl font-bold mb-4 text-primary">
                 Выбери категорию
@@ -444,7 +499,8 @@ export default function Index() {
                 </Card>
               ))}
             </div>
-          </div>
+            </div>
+          </PageTransition>
         )}
       </main>
     </div>
